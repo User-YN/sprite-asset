@@ -1,0 +1,947 @@
+/* ====================================================================
+   Dynamic Sprite Emotion v5 — UI refresh
+   기본 컨테이너/스프라이트
+==================================================================== */
+
+#dynamic-sprite-container {
+    position: fixed;
+    pointer-events: none;
+    display: flex;
+    align-items: flex-end;
+    /* bottom/left/right/height/z-index는 JS가 주입 */
+}
+
+#dynamic-sprite-img {
+    max-height: 100%;
+    height: auto;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+    opacity: 0;
+    display: none;
+    transition: opacity 300ms ease;
+}
+
+/* ====================================================================
+   설정 패널 — 공통 베이스
+==================================================================== */
+.dynamic-sprites-settings .inline-drawer-content {
+    padding: 10px;
+    overflow: visible;
+}
+
+.dynamic-sprites-settings .ds-section {
+    margin-bottom: 14px;
+    overflow: visible;
+}
+
+.dynamic-sprites-settings h4 {
+    margin: 22px 0 12px;
+    font-size: 1.0em;
+    font-weight: 600;
+    line-height: 1.3;
+    display: flex;
+    align-items: center;
+}
+
+.dynamic-sprites-settings h4 .ds-h4-icon {
+    margin-right: 8px;
+    font-size: 0.82em;
+    opacity: 0.6;
+    width: 1.1em;
+    text-align: center;
+    display: inline-block;
+    color: var(--SmartThemeQuoteColor, currentColor);
+}
+
+.dynamic-sprites-settings .ds-hint {
+    font-size: 0.82em;
+    opacity: 0.7;
+    line-height: 1.5;
+    margin: 2px 0 8px;
+}
+
+.dynamic-sprites-settings .ds-hint code {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.dynamic-sprites-settings label:not(.checkbox_label) {
+    display: block;
+    margin: 10px 0 4px;
+    font-size: 0.88em;
+    line-height: 1.4;
+    opacity: 0.88;
+}
+
+.dynamic-sprites-settings label.checkbox_label {
+    margin: 7px 0;
+    line-height: 1.45;
+}
+
+.dynamic-sprites-settings input[type="text"],
+.dynamic-sprites-settings input[type="password"],
+.dynamic-sprites-settings input[type="number"],
+.dynamic-sprites-settings textarea,
+.dynamic-sprites-settings select {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.dynamic-sprites-settings hr {
+    display: block;
+    border: 0;
+    border-top: 1px solid currentColor;
+    opacity: 0.18;
+    margin: 28px 0 0;
+    padding: 0;
+    height: 0;
+    background: transparent;
+}
+
+.dynamic-sprites-settings .ds-slider {
+    width: 100%;
+    margin: 2px 0 6px;
+    display: block;
+}
+
+/* ====================================================================
+   마스터 토글 — 탭 위 항상 보이는 헤더 영역
+==================================================================== */
+.ds-master {
+    padding: 4px 0 6px;
+}
+
+.ds-master .checkbox_label {
+    font-weight: 600;
+}
+
+/* ====================================================================
+   탭 — 수평 세그먼트 행
+==================================================================== */
+.ds-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin: 10px 0 14px;
+    padding: 3px;
+    background: rgba(0, 0, 0, 0.07);
+    border-radius: 8px;
+}
+
+.ds-tab-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 7px 6px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: inherit;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: 500;
+    line-height: 1.2;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    opacity: 0.7;
+    transition: background 150ms ease, color 150ms ease, opacity 150ms ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.ds-tab-btn i {
+    font-size: 0.95em;
+    opacity: 0.85;
+}
+
+.ds-tab-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    opacity: 1;
+}
+
+.ds-tab-btn.ds-tab-active {
+    background: rgba(255, 255, 255, 0.65);
+    font-weight: 600;
+    opacity: 1;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.ds-tab-panel[hidden] { display: none; }
+
+/* ====================================================================
+   테마 픽커 — 4개 원형 스와치
+==================================================================== */
+.ds-theme-picker {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 4px 0 2px;
+}
+
+.ds-theme-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    padding: 0;
+    cursor: pointer;
+    transition: border-color 120ms ease, transform 120ms ease;
+    flex-shrink: 0;
+}
+
+.ds-theme-btn:hover { transform: scale(1.15); }
+
+.ds-theme-btn.ds-theme-active {
+    border-color: currentColor;
+    transform: scale(1.15);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
+}
+
+.ds-theme-btn[data-theme="mono"]  { background: #c8ccd8; }
+.ds-theme-btn[data-theme="rose"]  { background: #f7b8cc; }
+.ds-theme-btn[data-theme="ivory"] { background: #efe6c8; }
+.ds-theme-btn[data-theme="sky"]   { background: #aecbf7; }
+
+/* ====================================================================
+   API 키 / 키 토글
+==================================================================== */
+.ds-key-input-wrap {
+    display: flex;
+    gap: 6px;
+    align-items: stretch;
+}
+
+.ds-key-input-wrap input { flex: 1; }
+
+.ds-key-input-wrap .menu_button {
+    padding: 4px 10px;
+    min-width: 40px;
+    flex-shrink: 0;
+}
+
+.ds-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.ds-preset-btn {
+    padding: 4px 10px;
+    font-size: 0.85em;
+}
+
+#ds-api-test-result {
+    margin-top: 8px;
+    font-size: 0.88em;
+    line-height: 1.5;
+    min-height: 20px;
+}
+
+#ds-api-test-result code {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1px 5px;
+    border-radius: 3px;
+}
+
+#ds-api-st-hint {
+    background: rgba(100, 180, 255, 0.08);
+    border-left: 3px solid rgba(100, 180, 255, 0.5);
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-top: 8px;
+    font-size: 0.85em;
+    line-height: 1.5;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+#ds-api-st-hint i { margin-top: 2px; }
+
+/* ====================================================================
+   감정 리스트 (캐릭터별 아코디언)
+==================================================================== */
+.ds-emotion-list {
+    display: block;
+    max-height: 400px;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(150, 150, 150, 0.5) transparent;
+    padding-right: 2px;
+}
+
+.ds-emotion-list > .ds-char-accordion { margin-bottom: 6px; }
+
+.ds-emotion-list::-webkit-scrollbar { width: 5px; display: block; }
+.ds-emotion-list::-webkit-scrollbar-track { background: transparent; }
+.ds-emotion-list::-webkit-scrollbar-thumb {
+    background: rgba(150, 150, 150, 0.45);
+    border-radius: 3px;
+}
+.ds-emotion-list::-webkit-scrollbar-thumb:active {
+    background: rgba(150, 150, 150, 0.75);
+}
+
+.ds-list-nav {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.ds-list-nav-btn {
+    width: 32px !important;
+    height: 24px !important;
+    padding: 0 !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
+    border-radius: 6px !important;
+    opacity: 0.7;
+    transition: opacity 120ms;
+}
+
+.ds-list-nav-btn:hover,
+.ds-list-nav-btn:active { opacity: 1; }
+
+.ds-empty {
+    opacity: 0.6;
+    padding: 16px;
+    text-align: center;
+    font-size: 0.9em;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+}
+
+.ds-char-accordion {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 200ms ease;
+}
+
+.ds-char-accordion.ds-current {
+    border-color: var(--SmartThemeQuoteColor);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.ds-char-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 150ms ease;
+    font-weight: 600;
+}
+
+.ds-char-header:hover { background: rgba(255, 255, 255, 0.05); }
+
+.ds-char-toggle {
+    font-size: 0.8em;
+    opacity: 0.7;
+    width: 14px;
+    flex-shrink: 0;
+    transition: transform 150ms ease;
+}
+
+.ds-char-name { flex: 1; font-size: 0.95em; }
+
+.ds-char-count {
+    font-size: 0.8em;
+    opacity: 0.6;
+    padding: 2px 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+}
+
+.ds-char-body {
+    padding: 6px 10px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* 사용 횟수 뱃지 */
+.ds-emotion-label-row { display: flex; gap: 6px; align-items: center; }
+
+.ds-usage-badge {
+    font-size: 0.75em;
+    padding: 2px 6px;
+    background: rgba(100, 180, 255, 0.18);
+    color: rgba(100, 180, 255, 0.95);
+    border-radius: 10px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.ds-usage-badge.ds-usage-zero {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* 감정 카드 */
+.ds-emotion-item {
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    gap: 8px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    align-items: start;
+}
+
+.ds-thumb {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ds-emotion-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.ds-emotion-label { font-weight: 600; font-size: 0.9em; }
+
+.ds-emotion-desc {
+    font-size: 0.82em;
+    resize: vertical;
+    min-height: 32px;
+}
+
+.ds-emotion-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.ds-emotion-actions .menu_button {
+    padding: 3px 6px;
+    min-width: 30px;
+    font-size: 0.85em;
+}
+
+.ds-delete-btn:hover { background: rgba(255, 80, 80, 0.2) !important; }
+
+/* alias 매니저 */
+.ds-alias-row {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    margin-bottom: 4px;
+}
+.ds-alias-row input { flex: 1; font-size: 0.85em; }
+.ds-alias-arrow { opacity: 0.5; font-size: 0.9em; }
+
+/* 프리셋 탭 바 (캐릭터별 감정 프리셋 — 감정 리스트 위) */
+.ds-preset-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    margin-bottom: 4px;
+}
+.ds-preset-tab {
+    padding: 2px 10px;
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.2);
+    background: rgba(0,0,0,0.06);
+    color: rgba(0,0,0,0.45);
+    font-size: 0.82em;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.ds-preset-tab-active {
+    background: rgba(183,148,210,0.3);
+    border-color: rgba(150,100,200,0.5);
+    color: #5a3080;
+    font-weight: 600;
+}
+.ds-preset-del { opacity: 0.5; font-size: 0.9em; margin-left: 2px; line-height: 1; }
+.ds-preset-del:hover { opacity: 1; color: #f08080; }
+.ds-preset-add {
+    padding: 2px 8px;
+    border-radius: 12px;
+    border: 1px dashed rgba(0,0,0,0.25);
+    background: transparent;
+    color: rgba(0,0,0,0.35);
+    font-size: 0.82em;
+    cursor: pointer;
+}
+.ds-preset-add:hover { color: #5a3080; border-color: rgba(150,100,200,0.5); }
+
+/* 업로드 / 액션 */
+.ds-upload-buttons {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.ds-upload-buttons .menu_button { flex: 1; min-width: 130px; }
+
+#ds-upload-status {
+    margin-top: 8px;
+    font-size: 0.85em;
+    line-height: 1.5;
+    max-height: 200px;
+    overflow-y: auto;
+}
+#ds-upload-status:empty { display: none; }
+
+#ds-test-result {
+    margin-top: 8px;
+    color: var(--SmartThemeQuoteColor);
+    font-size: 0.95em;
+    min-height: 20px;
+}
+
+.ds-actions-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.ds-actions-row .menu_button { flex: 1; min-width: 90px; }
+
+/* ====================================================================
+   감정 수동 선택 팝업 (마술봉 메뉴)
+==================================================================== */
+#ds-emotion-picker-popup {
+    position: fixed;
+    top: calc(50vh - 150px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 99999;
+    background: rgba(20, 20, 28, 0.97);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    max-width: 360px;
+    width: calc(100% - 40px);
+    max-height: 70vh;
+    padding: 12px;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+@media (max-width: 768px) {
+    #ds-emotion-picker-popup { top: 20vh; max-height: 60vh; }
+}
+
+.ds-picker-popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 4px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.9em;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.ds-picker-popup-close {
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: 1.1em;
+    padding: 2px 8px;
+    opacity: 0.6;
+    border-radius: 4px;
+}
+
+.ds-picker-popup-close:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.ds-picker-popup-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.ds-picker-popup-item {
+    flex: 1 1 auto;
+    min-width: 90px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.88em;
+    transition: all 150ms ease;
+}
+
+.ds-picker-popup-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+}
+
+.ds-picker-popup-item.ds-picker-popup-current {
+    background: rgba(100, 180, 255, 0.25);
+    border-color: rgba(100, 180, 255, 0.6);
+    font-weight: 600;
+}
+
+/* ====================================================================
+   placeholder 흐리게
+==================================================================== */
+.dynamic-sprites-settings input::placeholder,
+.dynamic-sprites-settings textarea::placeholder {
+    opacity: 0.45 !important;
+    font-size: 0.9em;
+}
+
+/* ====================================================================
+   테마 시스템 — 4 테마 (mono / rose / ivory / sky)
+   body[data-ds-theme="..."] 셀렉터로 격리
+==================================================================== */
+
+/* 공통 변수 fallback */
+body[data-ds-theme] #dynamic-sprites-settings,
+body[data-ds-theme] #ds-emotion-picker-popup {
+    --ds-bg: var(--SmartThemeBlurTintColor, rgba(20, 20, 28, 0.95));
+    --ds-bg-elevated: rgba(255, 255, 255, 0.05);
+    --ds-bg-card: rgba(255, 255, 255, 0.03);
+    --ds-bg-tabs: rgba(0, 0, 0, 0.08);
+    --ds-text: var(--SmartThemeBodyColor, #e8e5db);
+    --ds-text-muted: rgba(232, 229, 219, 0.6);
+    --ds-accent: var(--SmartThemeQuoteColor, #d4a574);
+    --ds-accent-soft: rgba(212, 165, 116, 0.18);
+    --ds-border: rgba(232, 229, 219, 0.1);
+    --ds-radius: 6px;
+    --ds-radius-lg: 12px;
+    --ds-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    --ds-fw: 400;
+    --ds-fw-bold: 600;
+}
+
+/* ========== MONO ========== */
+body[data-ds-theme="mono"] #dynamic-sprites-settings,
+body[data-ds-theme="mono"] #ds-emotion-picker-popup {
+    --ds-bg: #ffffff;
+    --ds-bg-elevated: #f0f0f0;
+    --ds-bg-card: #f8f8f8;
+    --ds-bg-tabs: #ececec;
+    --ds-text: #111111;
+    --ds-text-muted: rgba(17, 17, 17, 0.5);
+    --ds-accent: #111111;
+    --ds-accent-soft: rgba(17, 17, 17, 0.08);
+    --ds-border: rgba(17, 17, 17, 0.12);
+    --ds-radius: 4px;
+    --ds-radius-lg: 8px;
+    --ds-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --ds-fw: 400;
+    --ds-fw-bold: 700;
+}
+
+/* ========== ROSE ========== */
+body[data-ds-theme="rose"] #dynamic-sprites-settings,
+body[data-ds-theme="rose"] #ds-emotion-picker-popup {
+    --ds-bg: #fff5f7;
+    --ds-bg-elevated: #ffe9ee;
+    --ds-bg-card: #fff0f3;
+    --ds-bg-tabs: #fde2e9;
+    --ds-text: #6e2a3e;
+    --ds-text-muted: rgba(110, 42, 62, 0.55);
+    --ds-accent: #e6739a;
+    --ds-accent-soft: rgba(230, 115, 154, 0.12);
+    --ds-border: rgba(110, 42, 62, 0.12);
+    --ds-radius: 4px;
+    --ds-radius-lg: 8px;
+    --ds-shadow: 0 2px 8px rgba(180, 60, 100, 0.18);
+    --ds-fw: 400;
+    --ds-fw-bold: 700;
+}
+
+/* ========== IVORY ========== */
+body[data-ds-theme="ivory"] #dynamic-sprites-settings,
+body[data-ds-theme="ivory"] #ds-emotion-picker-popup {
+    --ds-bg: #fdfcf5;
+    --ds-bg-elevated: #f5f1e3;
+    --ds-bg-card: #faf7ec;
+    --ds-bg-tabs: #efebda;
+    --ds-text: #4a4534;
+    --ds-text-muted: rgba(74, 69, 52, 0.55);
+    --ds-accent: #c2ad7e;
+    --ds-accent-soft: rgba(194, 173, 126, 0.14);
+    --ds-border: rgba(74, 69, 52, 0.12);
+    --ds-radius: 4px;
+    --ds-radius-lg: 8px;
+    --ds-shadow: 0 2px 8px rgba(140, 125, 80, 0.16);
+    --ds-fw: 400;
+    --ds-fw-bold: 700;
+}
+
+/* ========== SKY ========== */
+body[data-ds-theme="sky"] #dynamic-sprites-settings,
+body[data-ds-theme="sky"] #ds-emotion-picker-popup {
+    --ds-bg: #f3f8ff;
+    --ds-bg-elevated: #e3eeff;
+    --ds-bg-card: #eef5ff;
+    --ds-bg-tabs: #d8e6fa;
+    --ds-text: #243f6b;
+    --ds-text-muted: rgba(36, 63, 107, 0.55);
+    --ds-accent: #5b8def;
+    --ds-accent-soft: rgba(91, 141, 239, 0.12);
+    --ds-border: rgba(36, 63, 107, 0.12);
+    --ds-radius: 4px;
+    --ds-radius-lg: 8px;
+    --ds-shadow: 0 2px 8px rgba(60, 100, 180, 0.18);
+    --ds-fw: 400;
+    --ds-fw-bold: 700;
+}
+
+/* ====================================================================
+   변수 적용 — 설정 패널
+   참고: data-ds-theme 속성이 있는 경우에만 적용 (4테마 어느 것이든)
+   applyTheme()이 누락/비정상 값을 'mono'로 마이그레이션하므로 안전
+==================================================================== */
+body[data-ds-theme] #dynamic-sprites-settings .inline-drawer-content {
+    background: var(--ds-bg);
+    color: var(--ds-text);
+    border-radius: var(--ds-radius-lg);
+    padding: 12px 14px;
+    font-weight: var(--ds-fw);
+    border: 1px solid var(--ds-border);
+}
+
+body[data-ds-theme] #dynamic-sprites-settings .inline-drawer-toggle {
+    color: var(--ds-text);
+    font-weight: var(--ds-fw-bold);
+}
+
+body[data-ds-theme] #dynamic-sprites-settings hr {
+    border-top-color: var(--ds-text) !important;
+    opacity: 0.18 !important;
+}
+
+body[data-ds-theme] #dynamic-sprites-settings h4 {
+    color: var(--ds-text);
+    font-weight: var(--ds-fw-bold);
+}
+
+body[data-ds-theme] #dynamic-sprites-settings h4 .ds-h4-icon {
+    color: var(--ds-accent);
+}
+
+body[data-ds-theme] #dynamic-sprites-settings label {
+    color: var(--ds-text);
+}
+
+body[data-ds-theme] #dynamic-sprites-settings .ds-hint {
+    color: var(--ds-text-muted);
+}
+
+/* 입력류 */
+body[data-ds-theme] #dynamic-sprites-settings .text_pole,
+body[data-ds-theme] #dynamic-sprites-settings input[type="text"],
+body[data-ds-theme] #dynamic-sprites-settings input[type="number"],
+body[data-ds-theme] #dynamic-sprites-settings input[type="password"],
+body[data-ds-theme] #dynamic-sprites-settings textarea,
+body[data-ds-theme] #dynamic-sprites-settings select {
+    background: var(--ds-bg-elevated) !important;
+    color: var(--ds-text) !important;
+    border: 1px solid var(--ds-border) !important;
+    border-radius: var(--ds-radius) !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* 버튼 */
+body[data-ds-theme] #dynamic-sprites-settings .menu_button {
+    background: var(--ds-bg) !important;
+    color: var(--ds-text) !important;
+    border: 1.5px solid var(--ds-border) !important;
+    border-radius: var(--ds-radius) !important;
+    font-weight: var(--ds-fw-bold) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+    transition: all 150ms ease !important;
+}
+
+body[data-ds-theme] #dynamic-sprites-settings .menu_button:hover {
+    background: var(--ds-accent-soft) !important;
+    border-color: var(--ds-accent) !important;
+    color: var(--ds-accent) !important;
+}
+
+/* 슬라이더 */
+body[data-ds-theme] #dynamic-sprites-settings input[type="range"] {
+    accent-color: var(--ds-accent) !important;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--ds-border) !important;
+    outline: none !important;
+}
+
+body[data-ds-theme] #dynamic-sprites-settings input[type="range"]::-webkit-slider-runnable-track {
+    background: var(--ds-border) !important;
+    height: 4px;
+    border-radius: 2px;
+}
+
+body[data-ds-theme] #dynamic-sprites-settings input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--ds-accent) !important;
+    border: none !important;
+    margin-top: -6px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+body[data-ds-theme] #dynamic-sprites-settings input[type="range"]::-moz-range-track {
+    background: var(--ds-border) !important;
+    height: 4px;
+    border-radius: 2px;
+}
+
+body[data-ds-theme] #dynamic-sprites-settings input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--ds-accent) !important;
+    border: none !important;
+}
+
+/* 체크박스 */
+body[data-ds-theme] #dynamic-sprites-settings input[type="checkbox"] {
+    accent-color: var(--ds-accent) !important;
+}
+
+/* 탭 */
+body[data-ds-theme] #dynamic-sprites-settings .ds-tabs {
+    background: var(--ds-bg-tabs);
+    border: 1px solid var(--ds-border);
+}
+
+body[data-ds-theme] #dynamic-sprites-settings .ds-tab-btn {
+    color: var(--ds-text);
+}
+
+body[data-ds-theme] #dynamic-sprites-settings .ds-tab-btn:hover {
+    background: var(--ds-accent-soft);
+}
+
+body[data-ds-theme] #dynamic-sprites-settings .ds-tab-btn.ds-tab-active {
+    background: var(--ds-bg);
+    color: var(--ds-accent);
+}
+
+/* 감정 카드 / 아코디언 / 뱃지 */
+body[data-ds-theme] #dynamic-sprites-settings .ds-emotion-item {
+    background: var(--ds-bg-elevated);
+    border: 1px solid var(--ds-border);
+    border-radius: var(--ds-radius);
+    box-shadow: var(--ds-shadow);
+}
+
+body[data-ds-theme] #dynamic-sprites-settings .ds-char-accordion {
+    background: var(--ds-bg-elevated);
+    border: 1px solid var(--ds-border);
+    border-radius: var(--ds-radius);
+    margin-bottom: 8px;
+}
+
+body[data-ds-theme] #dynamic-sprites-settings .ds-char-header {
+    background: var(--ds-bg-card);
+    color: var(--ds-text);
+}
+
+body[data-ds-theme] #dynamic-sprites-settings .ds-char-accordion.ds-current .ds-char-header {
+    background: var(--ds-accent-soft);
+    color: var(--ds-accent);
+}
+
+body[data-ds-theme] #dynamic-sprites-settings .ds-usage-badge {
+    background: var(--ds-accent-soft);
+    color: var(--ds-accent);
+}
+
+body[data-ds-theme] #dynamic-sprites-settings code {
+    background: var(--ds-bg-elevated);
+    color: var(--ds-accent);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--ds-border);
+}
+
+/* ST hint 박스 */
+body[data-ds-theme] #dynamic-sprites-settings #ds-api-st-hint {
+    background: var(--ds-accent-soft);
+    border-left-color: var(--ds-accent);
+    color: var(--ds-text);
+}
+
+/* ====================================================================
+   변수 적용 — 감정 선택 팝업
+==================================================================== */
+body[data-ds-theme] #ds-emotion-picker-popup {
+    background: var(--ds-bg);
+    color: var(--ds-text);
+    border: 1px solid var(--ds-border);
+    border-radius: var(--ds-radius-lg);
+    box-shadow: var(--ds-shadow);
+}
+
+body[data-ds-theme] .ds-picker-popup-header {
+    color: var(--ds-text);
+    border-bottom-color: var(--ds-border);
+    font-weight: var(--ds-fw-bold);
+}
+
+body[data-ds-theme] .ds-picker-popup-close {
+    color: var(--ds-text);
+}
+
+body[data-ds-theme] .ds-picker-popup-item {
+    background: var(--ds-bg-elevated) !important;
+    color: var(--ds-text) !important;
+    border: 1px solid var(--ds-border) !important;
+    border-radius: var(--ds-radius) !important;
+    font-weight: var(--ds-fw) !important;
+    transition: all 150ms ease !important;
+}
+
+body[data-ds-theme] .ds-picker-popup-item:hover {
+    background: var(--ds-accent-soft) !important;
+    border-color: var(--ds-accent) !important;
+    color: var(--ds-accent) !important;
+    transform: translateY(-1px);
+}
+
+body[data-ds-theme] .ds-picker-popup-item.ds-picker-popup-current {
+    background: var(--ds-accent-soft) !important;
+    border-color: var(--ds-accent) !important;
+    color: var(--ds-accent) !important;
+    font-weight: var(--ds-fw-bold) !important;
+}
