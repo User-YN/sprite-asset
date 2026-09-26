@@ -431,13 +431,15 @@ Label:`;
 // NovelAI 이미지 생성 호출
 // ====================================================================
 async function callNovelAI(prompt, negativePrompt, config) {
+    const model = (config.model ?? "nai-diffusion-4-5-full").trim();
+    if (!model) throw new Error("직접 사용할 모델 ID를 입력하세요.");
     const seed = (config.seedLocked && config.lockedSeed >= 0)
         ? config.lockedSeed
         : Math.floor(Math.random() * 4294967295);
 
     const body = {
         input: prompt,
-        model: config.model || "nai-diffusion-4-5-full",
+        model,
         action: "generate",
         parameters: {
             params_version: 3,
@@ -1872,7 +1874,26 @@ function createSettingsPanel() {
     // === NAI 설정 ===
     bindSetting("ds-nai-provider", "naiConfig.provider");
     bindSetting("ds-nai-key",          "naiConfig.apiKey",         { parser: (v) => v });
-    bindSetting("ds-nai-model",        "naiConfig.model");
+    const modelSelect = document.getElementById("ds-nai-model");
+    const customModelInput = document.getElementById("ds-nai-custom-model");
+    const customModelField = document.getElementById("ds-nai-custom-model-field");
+    const savedModel = settings.naiConfig.model ?? "nai-diffusion-4-5-full";
+    const isPresetModel = [...modelSelect.options].some(option => option.value !== "custom" && option.value === savedModel);
+    modelSelect.value = settings.naiConfig.modelMode === "custom" || !isPresetModel ? "custom" : savedModel;
+    customModelInput.value = modelSelect.value === "custom" ? savedModel : (settings.naiConfig.customModel || "");
+    customModelField.hidden = modelSelect.value !== "custom";
+    modelSelect.addEventListener("change", () => {
+        const custom = modelSelect.value === "custom";
+        customModelField.hidden = !custom;
+        settings.naiConfig.modelMode = custom ? "custom" : "preset";
+        settings.naiConfig.model = custom ? customModelInput.value.trim() : modelSelect.value;
+        saveSettingsDebounced();
+    });
+    customModelInput.addEventListener("input", () => {
+        settings.naiConfig.customModel = customModelInput.value.trim();
+        if (modelSelect.value === "custom") settings.naiConfig.model = settings.naiConfig.customModel;
+        saveSettingsDebounced();
+    });
     bindSetting("ds-nai-steps",        "naiConfig.steps",          { valueLabelId: "ds-nai-steps-val" });
     bindSetting("ds-nai-scale",        "naiConfig.scale",          { valueLabelId: "ds-nai-scale-val" });
     bindSetting("ds-nai-rescale",      "naiConfig.cfgRescale",     { valueLabelId: "ds-nai-rescale-val" });

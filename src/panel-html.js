@@ -190,12 +190,19 @@ export function buildPanelHtml(settings) {
 
                     <label>모델</label>
                     <select id="ds-nai-model" class="text_pole">
-                        <option value="nai-diffusion-4-5-full" ${settings.naiConfig?.model === "nai-diffusion-4-5-full" ? "selected" : ""}>NAI Diffusion V4.5 Full (최신)</option>
+                        <option value="nai-diffusion-5-full" ${settings.naiConfig?.model === "nai-diffusion-5-full" ? "selected" : ""}>NovelAI V5 Full</option>
+                        <option value="nai-diffusion-4-5-full" ${settings.naiConfig?.model === "nai-diffusion-4-5-full" ? "selected" : ""}>NAI Diffusion V4.5 Full</option>
                         <option value="nai-diffusion-4-5-curated" ${settings.naiConfig?.model === "nai-diffusion-4-5-curated" ? "selected" : ""}>NAI Diffusion V4.5 Curated</option>
                         <option value="nai-diffusion-4-full" ${settings.naiConfig?.model === "nai-diffusion-4-full" ? "selected" : ""}>NAI Diffusion V4 Full</option>
                         <option value="nai-diffusion-4-curated-preview" ${settings.naiConfig?.model === "nai-diffusion-4-curated-preview" ? "selected" : ""}>NAI Diffusion V4 Curated</option>
                         <option value="nai-diffusion-3" ${settings.naiConfig?.model === "nai-diffusion-3" ? "selected" : ""}>NAI Diffusion V3</option>
+                        <option value="custom">직접 입력</option>
                     </select>
+                    <div id="ds-nai-custom-model-field" hidden>
+                        <label for="ds-nai-custom-model">모델 ID</label>
+                        <input id="ds-nai-custom-model" class="text_pole" type="text" placeholder="예: nai-diffusion-5-full" autocomplete="off">
+                        <p class="ds-hint">연결된 서비스가 지원하는 정확한 모델 ID를 입력하세요. SharedNAI는 서버 플러그인에서 허용한 모델만 사용할 수 있습니다.</p>
+                    </div>
 
                     <label>해상도</label>
                     <select id="ds-nai-size" class="text_pole">
